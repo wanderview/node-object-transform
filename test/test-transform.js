@@ -24,10 +24,95 @@
 'use strict';
 
 var ObjectTransform = require('../transform');
+var util = require('util');
 
-module.exports.nop = function(test) {
+util.inherits(S, ObjectTransform);
+
+var TEST_STRING = 'Hello world!';
+
+function S(opts) {
+  var self = (this instanceof S) ? this : Object.create(S.prototype);
+  opts = opts || {};
+  opts.meta = 's';
+  ObjectTransform.call(this, opts);
+  return self;
+}
+
+S.prototype._expand = function(s, msg, output, callback) {
+  msg.data.write(s, msg.offset);
+  msg.offset += s.length;
+  output(msg);
+  callback();
+};
+
+S.prototype._reduce = function(msg, output, callback) {
+  msg.s = msg.data.toString(null, msg.offset, TEST_STRING.length);
+  msg.offset += TEST_STRING.length;
+  output(msg);
+  callback();
+};
+
+module.exports.reduceBuffer = function(test) {
+  test.expect(2);
+
+  var sstream = new S();
+
+  var buf = new Buffer(TEST_STRING);
+  sstream.write(buf);
+
+  var msg = sstream.read();
+
+  test.equal(TEST_STRING, msg.s);
+  test.equal(TEST_STRING.length, msg.offset);
+
+  test.done();
+};
+
+module.exports.reduceObject = function(test) {
+  test.expect(2);
+
+  var sstream = new S();
+
+  var buf = new Buffer(TEST_STRING);
+  sstream.write({data: buf});
+
+  var msg = sstream.read();
+
+  test.equal(TEST_STRING, msg.s);
+  test.equal(TEST_STRING.length, msg.offset);
+
+  test.done();
+};
+
+module.exports.expandDefault = function(test) {
   test.expect(1);
-  var ot = new ObjectTransform();
-  test.ok(ot instanceof ObjectTransform);
+
+  var defaultString = 'hELLO WORLD?';
+
+  var sstream = new S({s: defaultString});
+
+  sstream.write({data: new Buffer(1)});
+
+  var msg = sstream.read();
+
+  test.equal(defaultString, msg.data.toString(null, 0, defaultString.length));
+
+  test.done();
+};
+
+module.exports.expandObject = function(test) {
+  test.expect(1);
+
+  var defaultString = 'hELLO WORLD?';
+  var msgString = '!world Hello';
+
+  var sstream = new S({s: defaultString});
+
+  sstream.write({data: new Buffer(1), s: msgString});
+
+  var msg = sstream.read();
+
+  test.equal(msgString, msg.data.toString(null, 0, defaultString.length));
+
   test.done();
 };

@@ -56,6 +56,8 @@ function ObjectTransform(opts) {
                     'be stored.');
   }
 
+  self[self._metaProp] = opts[self._metaProp];
+
   return self;
 }
 
