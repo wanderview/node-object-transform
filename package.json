@@ -1,0 +1,28 @@
+{
+  "name": "object-transform",
+  "description": "Composable object stream Transform",
+  "keywords": [
+    "composable-object-stream",
+    "stream",
+    "transform",
+    "objectMode",
+    "object"
+  ],
+  "version": "0.0.0",
+  "author": "Ben Kelly <ben@wanderview.com>",
+  "license": "BSD",
+  "dependencies": {
+    "readable-stream": "~0.3.0"
+  },
+  "devDependencies": {
+    "nodeunit": "~0.7.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:wanderview/node-object-transform.git"
+  },
+  "scripts": {
+    "test": "nodeunit test"
+  },
+  "main": "transform.js"
+}
