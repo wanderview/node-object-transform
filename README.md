@@ -31,15 +31,22 @@ MyStream.prototype._expand = function(myMetaData, msg, output, callback) {
   // to accomodate writing it out at offset
   myMetaData.serializeOut(msg.data, msg.offset);
   msg.offset += myMetaData.length;
+
+  // asynchronously push out the resulting object
   output(msg);
+
+  // asynchronously indicate input msg has been consumed
   callback();
 };
 
 MyStream.prototype._reduce = function(msg, output, callback) {
   msg.myMetaData = DoSomeParsing(msg.data, msg.offset);
   msg.offset += msg.myMetaData.length;
-  output(msg);
-  callback();
+
+  // convenience for sync, one-to-one _expand/_reduce
+  //  - return msg to have output(msg) and callback() called automatically
+  //  - must return null if you call async functions yourself
+  return msg;
 };
 
 // Use the stream to parse a binary stream

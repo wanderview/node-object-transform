@@ -74,12 +74,21 @@ ObjectTransform.prototype._transform = function(origMsg, output, callback) {
   }
 
   try {
+    var msgOut = null;
+
     if (metaData) {
       msg.data = this._grow(msg.data, msg.offset, ~~metaData.length);
-      this._expand(metaData, msg, output, callback);
+      msgOut = this._expand(metaData, msg, output, callback);
     } else {
-      this._reduce(msg, output, callback);
+      msgOut = this._reduce(msg, output, callback);
     }
+
+    // convenience for sync, one-to-one _expand/_reduce functions
+    if (msgOut) {
+      output(msgOut);
+      callback();
+    }
+
   } catch (error) {
     this.emit('ignored', error, origMsg);
     callback();

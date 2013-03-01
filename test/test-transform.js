@@ -41,6 +41,7 @@ function S(opts) {
 S.prototype._expand = function(s, msg, output, callback) {
   msg.data.write(s, msg.offset);
   msg.offset += s.length;
+  // exercise async callbacks
   output(msg);
   callback();
 };
@@ -48,8 +49,8 @@ S.prototype._expand = function(s, msg, output, callback) {
 S.prototype._reduce = function(msg, output, callback) {
   msg.s = msg.data.toString(null, msg.offset, TEST_STRING.length);
   msg.offset += TEST_STRING.length;
-  output(msg);
-  callback();
+  // exercise sync return convenience shortcut
+  return msg;
 };
 
 module.exports.reduceBuffer = function(test) {
