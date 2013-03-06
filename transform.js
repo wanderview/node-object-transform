@@ -61,18 +61,11 @@ function ObjectTransform(opts) {
   return self;
 }
 
-ObjectTransform.prototype._transform = function(origMsg, output, callback) {
+ObjectTransform.prototype._transform = function(origMsg, encoding, callback) {
   var self = this;
 
-  // Compat for differences between readable-stream v0.3.0 and current master.
-  // The output argument was removed.
-  // TODO: remove once the API has been pushed to readable-stream.
-  if (typeof callback !== 'function') {
-    callback = output;
-    output = function(msg) {
-      self.push(msg);
-    };
-  }
+  // TODO: consider changing the ObjectTransform API to not pass output func
+  var output = self.push.bind(self);
 
   var msg = origMsg;
   if (Buffer.isBuffer(msg)) {
