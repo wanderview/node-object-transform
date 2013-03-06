@@ -62,6 +62,18 @@ function ObjectTransform(opts) {
 }
 
 ObjectTransform.prototype._transform = function(origMsg, output, callback) {
+  var self = this;
+
+  // Compat for differences between readable-stream v0.3.0 and current master.
+  // The output argument was removed.
+  // TODO: remove once the API has been pushed to readable-stream.
+  if (typeof callback !== 'function') {
+    callback = output;
+    output = function(msg) {
+      self.push(msg);
+    };
+  }
+
   var msg = origMsg;
   if (Buffer.isBuffer(msg)) {
     msg = { data: msg, offset: 0 };
@@ -70,17 +82,17 @@ ObjectTransform.prototype._transform = function(origMsg, output, callback) {
 
   var metaData = null;
   if (this._metaProp) {
-    metaData = msg[this._metaProp] || this[this._metaProp];
+    metaData = msg[self._metaProp] || self[self._metaProp];
   }
 
   try {
     var msgOut = null;
 
     if (metaData) {
-      msg.data = this._grow(msg.data, msg.offset, ~~metaData.length);
-      msgOut = this._expand(metaData, msg, output, callback);
+      msg.data = self._grow(msg.data, msg.offset, ~~metaData.length);
+      msgOut = self._expand(metaData, msg, output, callback);
     } else {
-      msgOut = this._reduce(msg, output, callback);
+      msgOut = self._reduce(msg, output, callback);
     }
 
     // convenience for sync, one-to-one _expand/_reduce functions
@@ -90,7 +102,7 @@ ObjectTransform.prototype._transform = function(origMsg, output, callback) {
     }
 
   } catch (error) {
-    this.emit('ignored', error, origMsg);
+    self.emit('ignored', error, origMsg);
     callback();
   }
 };
