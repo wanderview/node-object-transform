@@ -8,7 +8,7 @@
     "objectMode",
     "object"
   ],
-  "version": "0.2.2",
+  "version": "0.2.3",
   "author": "Ben Kelly <ben@wanderview.com>",
   "license": "BSD",
   "dependencies": {
